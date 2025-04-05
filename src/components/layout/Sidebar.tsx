@@ -13,7 +13,7 @@ import {
   SidebarHeader,
   SidebarFooter
 } from '@/components/ui/sidebar';
-import { BookOpen, Code, LogIn, Moon, Sun, User } from 'lucide-react';
+import { BookOpen, Code, LogIn, Moon, Sun, User, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/providers/ThemeProvider';
 
@@ -23,6 +23,11 @@ export function AppSidebar() {
 
   // Menu items
   const navigationItems = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
     {
       title: "Learn",
       url: "/learn",

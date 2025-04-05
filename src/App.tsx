@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import LearnPage from "./pages/LearnPage";
 import TestPage from "./components/test/TestPage";
 import InterviewPage from "./pages/InterviewPage";
+import DashboardPage from "./pages/DashboardPage";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./providers/ThemeProvider";
 
@@ -22,6 +23,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/learn" element={<LearnPage />} />
             <Route path="/test" element={<TestPage />} />
             <Route path="/test/interview" element={<InterviewPage />} />
