@@ -5,6 +5,7 @@ import Layout from '@/components/layout/Layout';
 import InterviewOption from '@/components/test/InterviewOption';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { FileUp, ChevronLeft } from 'lucide-react';
 
 enum InterviewSetupStep {
@@ -17,6 +18,8 @@ const TestPage = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<InterviewSetupStep>(InterviewSetupStep.OPTIONS);
   const [file, setFile] = useState<File | null>(null);
+  const [jobRole, setJobRole] = useState('');
+  const [primaryTechnology, setPrimaryTechnology] = useState('');
   
   const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -104,15 +107,13 @@ const TestPage = () => {
                 <div className="mt-8 space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Target Job Role</label>
-                    <select 
-                      className="w-full bg-dark-hover border border-border rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    >
-                      <option value="frontend">Frontend Developer</option>
-                      <option value="backend">Backend Developer</option>
-                      <option value="fullstack">Full Stack Developer</option>
-                      <option value="data">Data Scientist</option>
-                      <option value="devops">DevOps Engineer</option>
-                    </select>
+                    <Input
+                      type="text"
+                      placeholder="Enter your target job role (e.g. Frontend Developer)"
+                      value={jobRole}
+                      onChange={(e) => setJobRole(e.target.value)}
+                      className="bg-dark-hover border border-border"
+                    />
                   </div>
                   
                   <div>
@@ -130,7 +131,7 @@ const TestPage = () => {
               <CardFooter className="flex justify-end">
                 <Button 
                   onClick={handleStartInterview} 
-                  disabled={!file}
+                  disabled={!file || !jobRole.trim()}
                 >
                   Start Interview
                 </Button>
@@ -158,16 +159,13 @@ const TestPage = () => {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium mb-2">Primary Technology</label>
-                    <select 
-                      className="w-full bg-dark-hover border border-border rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    >
-                      <option value="react">React</option>
-                      <option value="nodejs">Node.js</option>
-                      <option value="python">Python</option>
-                      <option value="java">Java</option>
-                      <option value="csharp">C#</option>
-                      <option value="golang">Go</option>
-                    </select>
+                    <Input
+                      type="text"
+                      placeholder="Enter your primary technology (e.g. React, Node.js, Python)"
+                      value={primaryTechnology}
+                      onChange={(e) => setPrimaryTechnology(e.target.value)}
+                      className="bg-dark-hover border border-border"
+                    />
                   </div>
                   
                   <div>
@@ -201,7 +199,10 @@ const TestPage = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end">
-                <Button onClick={handleStartInterview}>
+                <Button 
+                  onClick={handleStartInterview}
+                  disabled={!primaryTechnology.trim()}
+                >
                   Start Interview
                 </Button>
               </CardFooter>
