@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import {
   Server, Database, Cpu, FileCode, Smartphone, Shield
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LearningTips from '@/components/learn/LearningTips';
 
 // Mock topics for roadmap generation
 const topics = [
@@ -154,15 +154,16 @@ const LearnPage = () => {
         </div>
         
         <Tabs defaultValue="roadmap" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="roadmap">Learning Roadmap</TabsTrigger>
             <TabsTrigger value="resources">Learning Resources</TabsTrigger>
             <TabsTrigger value="quiz">Knowledge Quiz</TabsTrigger>
+            <TabsTrigger value="tips">Learning Tips</TabsTrigger>
           </TabsList>
           
           <TabsContent value="roadmap" className="mt-0">
             {!showRoadmap ? (
-              <Card className="bg-dark-card border-border/40">
+              <Card className="border-border/40 shadow-sm">
                 <CardHeader>
                   <CardTitle>Generate a Custom Learning Roadmap</CardTitle>
                   <CardDescription>
@@ -217,7 +218,7 @@ const LearnPage = () => {
                       <label className="block text-sm font-medium mb-2">
                         Experience Level
                       </label>
-                      <select className="w-full bg-dark-hover border border-border rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                      <select className="w-full border border-input rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary/50">
                         <option value="beginner">Beginner</option>
                         <option value="intermediate">Intermediate</option>
                         <option value="advanced">Advanced</option>
@@ -228,7 +229,7 @@ const LearnPage = () => {
                       <label className="block text-sm font-medium mb-2">
                         Learning Goal
                       </label>
-                      <select className="w-full bg-dark-hover border border-border rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                      <select className="w-full border border-input rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary/50">
                         <option value="career">Career Transition</option>
                         <option value="skill">New Skill Acquisition</option>
                         <option value="project">Build a Specific Project</option>
@@ -249,7 +250,7 @@ const LearnPage = () => {
               </Card>
             ) : (
               <div className="space-y-6">
-                <Card className="bg-dark-card border-border/40">
+                <Card className="border-border/40 shadow-sm">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>
@@ -305,7 +306,7 @@ const LearnPage = () => {
           </TabsContent>
           
           <TabsContent value="resources" className="mt-0">
-            <Card className="bg-dark-card border-border/40">
+            <Card className="border-border/40 shadow-sm">
               <CardHeader>
                 <CardTitle>Curated Learning Resources</CardTitle>
                 <CardDescription>
@@ -358,7 +359,7 @@ const LearnPage = () => {
           </TabsContent>
           
           <TabsContent value="quiz" className="mt-0">
-            <Card className="bg-dark-card border-border/40">
+            <Card className="border-border/40 shadow-sm">
               <CardHeader>
                 <CardTitle>Test Your Knowledge</CardTitle>
                 <CardDescription>
@@ -410,6 +411,10 @@ const LearnPage = () => {
                 <Button className="w-full">Check Answers</Button>
               </CardFooter>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="tips" className="mt-0">
+            <LearningTips />
           </TabsContent>
         </Tabs>
       </div>

@@ -112,6 +112,17 @@
   h3 {
     @apply text-xl lg:text-2xl;
   }
+
+  /* Light mode improvements */
+  :root:not(.dark) {
+    --shadow-color: 222 84% 4.9%;
+    --shadow-strength: 2%;
+  }
+
+  .dark {
+    --shadow-color: 0 0% 0%;
+    --shadow-strength: 15%;
+  }
 }
 
 @layer components {
@@ -125,5 +136,39 @@
 
   .progress-bar-fill {
     @apply absolute h-full bg-primary rounded-full transition-all duration-300;
+  }
+
+  /* Card styling for light mode */
+  :root:not(.dark) .card {
+    @apply shadow-sm border border-border/40 bg-white;
+  }
+
+  /* Light mode button enhancements */
+  :root:not(.dark) .btn-primary {
+    @apply bg-primary text-white shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  /* Improved input styling for light mode */
+  :root:not(.dark) input, 
+  :root:not(.dark) select, 
+  :root:not(.dark) textarea {
+    @apply bg-white border border-border shadow-sm;
+  }
+
+  /* Button hover effects */
+  button {
+    @apply transition-all duration-200;
+  }
+
+  /* Gradient text for headings */
+  .gradient-heading {
+    @apply bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent;
+  }
+
+  /* Form element focus states */
+  input:focus, 
+  select:focus, 
+  textarea:focus {
+    @apply outline-none ring-2 ring-primary/30 ring-offset-1 ring-offset-background;
   }
 }
