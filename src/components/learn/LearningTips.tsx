@@ -14,7 +14,7 @@ const LearningTips = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-blue-500/10 p-2 rounded-full">
                 <Brain className="h-5 w-5 text-blue-500" />
@@ -26,7 +26,7 @@ const LearningTips = () => {
             </p>
           </div>
           
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-green-500/10 p-2 rounded-full">
                 <Repeat className="h-5 w-5 text-green-500" />
@@ -38,7 +38,7 @@ const LearningTips = () => {
             </p>
           </div>
           
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-amber-500/10 p-2 rounded-full">
                 <Lightbulb className="h-5 w-5 text-amber-500" />
@@ -50,7 +50,7 @@ const LearningTips = () => {
             </p>
           </div>
           
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-purple-500/10 p-2 rounded-full">
                 <Users className="h-5 w-5 text-purple-500" />
@@ -62,7 +62,7 @@ const LearningTips = () => {
             </p>
           </div>
           
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-red-500/10 p-2 rounded-full">
                 <Target className="h-5 w-5 text-red-500" />
@@ -74,7 +74,7 @@ const LearningTips = () => {
             </p>
           </div>
           
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-indigo-500/10 p-2 rounded-full">
                 <Clock className="h-5 w-5 text-indigo-500" />
@@ -86,7 +86,7 @@ const LearningTips = () => {
             </p>
           </div>
           
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-teal-500/10 p-2 rounded-full">
                 <BookOpen className="h-5 w-5 text-teal-500" />
@@ -98,7 +98,7 @@ const LearningTips = () => {
             </p>
           </div>
           
-          <div className="border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors">
+          <div className="learning-tip-card">
             <div className="flex items-center gap-3 mb-3">
               <div className="bg-pink-500/10 p-2 rounded-full">
                 <BarChart3 className="h-5 w-5 text-pink-500" />

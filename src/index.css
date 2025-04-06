@@ -140,12 +140,27 @@
 
   /* Card styling for light mode */
   :root:not(.dark) .card {
-    @apply shadow-sm border border-border/40 bg-white;
+    @apply shadow-md border border-border/40 bg-white rounded-lg;
+  }
+
+  /* Enhanced form elements for light mode */
+  :root:not(.dark) .form-input,
+  :root:not(.dark) .form-select {
+    @apply bg-white border border-border/70 rounded-md shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary/50;
   }
 
   /* Light mode button enhancements */
   :root:not(.dark) .btn-primary {
     @apply bg-primary text-white shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  /* Tab styling for light mode */
+  :root:not(.dark) [role="tablist"] {
+    @apply bg-secondary/50 p-1 rounded-lg;
+  }
+
+  :root:not(.dark) [role="tab"] {
+    @apply text-muted-foreground data-[state=active]:bg-white data-[state=active]:text-foreground data-[state=active]:shadow-sm;
   }
 
   /* Improved input styling for light mode */
@@ -170,5 +185,27 @@
   select:focus, 
   textarea:focus {
     @apply outline-none ring-2 ring-primary/30 ring-offset-1 ring-offset-background;
+  }
+
+  /* Learning tips cards */
+  .learning-tip-card {
+    @apply border border-border/40 rounded-lg p-4 hover:border-primary/50 transition-colors shadow-sm hover:shadow-md;
+  }
+
+  /* Interview tips styling */
+  .interview-tip {
+    @apply flex items-start gap-3 mb-4;
+  }
+
+  .interview-tip-icon {
+    @apply bg-primary/10 p-2 rounded-full mt-0.5;
+  }
+
+  .interview-tip-content h3 {
+    @apply font-medium text-lg mb-1;
+  }
+
+  .interview-tip-content p {
+    @apply text-muted-foreground;
   }
 }
