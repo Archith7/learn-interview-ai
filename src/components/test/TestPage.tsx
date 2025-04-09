@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -55,9 +54,18 @@ const TestPage = () => {
         description: "Your resume has been processed for the interview.",
       });
       
-      // Store the resume data and show the dialog
+      // Store the resume data but don't show the dialog
       setResumeData(data);
-      setShowResumeDialog(true);
+      
+      // Navigate directly to the interview page
+      navigate('/test/interview', { 
+        state: { 
+          resumeId: data?.resumeId,
+          jobRole: jobRole,
+          resumeData: data,
+          useMongoDb: true // Flag to indicate we want to fetch questions from MongoDB
+        } 
+      });
       
     } catch (error) {
       console.error('Error uploading resume:', error);
@@ -71,15 +79,16 @@ const TestPage = () => {
     }
   };
   
+  // This function is kept but won't be used directly anymore
   const handleProceedToInterview = () => {
     setShowResumeDialog(false);
     
-    // Navigate to interview page with the resume data
     navigate('/test/interview', { 
       state: { 
         resumeId: resumeData?.resumeId,
         jobRole: jobRole,
-        resumeData: resumeData
+        resumeData: resumeData,
+        useMongoDb: true
       } 
     });
   };
@@ -88,9 +97,14 @@ const TestPage = () => {
     if (currentStep === InterviewSetupStep.RESUME_UPLOAD && file) {
       // If we have a resume, send it to the backend first
       handleSendResumeToBackend();
-    } else {
-      // For other cases (like topic selection), just navigate
-      navigate('/test/interview');
+    } else if (currentStep === InterviewSetupStep.TOPIC_SELECTION) {
+      // For topic selection, navigate directly with the selected topic
+      navigate('/test/interview', { 
+        state: { 
+          primaryTechnology: primaryTechnology,
+          useMongoDb: true
+        } 
+      });
     }
   };
   
@@ -143,6 +157,7 @@ const TestPage = () => {
         </div>
       </div>
       
+      {/* We keep this component but it won't be shown in the normal flow anymore */}
       <ResumeAnalysisDialog
         showResumeDialog={showResumeDialog}
         setShowResumeDialog={setShowResumeDialog}

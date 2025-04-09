@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import FullScreenInterview from '@/components/test/FullScreenInterview';
+import { useToast } from '@/hooks/use-toast';
 
 const mockQuestions = [
   "Explain the concept of closures in JavaScript and provide an example.",
@@ -112,6 +114,8 @@ enum InterviewRound {
 }
 
 const InterviewPage = () => {
+  const location = useLocation();
+  const { toast } = useToast();
   const [currentRound, setCurrentRound] = useState<InterviewRound>(InterviewRound.QA);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentCodingIndex, setCurrentCodingIndex] = useState(0);
@@ -131,6 +135,72 @@ const InterviewPage = () => {
   
   const [isFullScreen, setIsFullScreen] = useState(false);
   
+  const [questions, setQuestions] = useState<string[]>(mockQuestions);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [codingChallenges, setCodingChallenges] = useState(mockCodingChallenges);
+  const [debuggingChallenges, setDebuggingChallenges] = useState(mockDebuggingChallenges);
+  
+  useEffect(() => {
+    const fetchQuestionsFromMongoDB = async () => {
+      const stateData = location.state;
+      
+      if (stateData?.useMongoDb) {
+        setIsLoadingQuestions(true);
+        try {
+          const queryParams = new URLSearchParams();
+          
+          if (stateData.jobRole) {
+            queryParams.append('jobRole', stateData.jobRole);
+          }
+          
+          if (stateData.primaryTechnology) {
+            queryParams.append('technology', stateData.primaryTechnology);
+          }
+          
+          if (stateData.resumeId) {
+            queryParams.append('resumeId', stateData.resumeId);
+          }
+          
+          const response = await fetch(`http://127.0.0.1:5000/get-questions?${queryParams.toString()}`);
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch questions');
+          }
+          
+          const data = await response.json();
+          
+          if (data.questions && data.questions.length > 0) {
+            setQuestions(data.questions);
+          }
+          
+          if (data.codingChallenges && data.codingChallenges.length > 0) {
+            setCodingChallenges(data.codingChallenges);
+          }
+          
+          if (data.debuggingChallenges && data.debuggingChallenges.length > 0) {
+            setDebuggingChallenges(data.debuggingChallenges);
+          }
+          
+          toast({
+            title: "Questions loaded",
+            description: "Your personalized interview questions have been loaded.",
+          });
+        } catch (error) {
+          console.error('Error fetching questions:', error);
+          toast({
+            title: "Failed to load questions",
+            description: "Using default questions instead. Please try again later.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoadingQuestions(false);
+        }
+      }
+    };
+    
+    fetchQuestionsFromMongoDB();
+  }, [location.state, toast]);
+  
   const handleNextQA = () => {
     if (answer.trim()) {
       setSavedAnswers({
@@ -138,10 +208,10 @@ const InterviewPage = () => {
         [`qa-${currentQuestionIndex}`]: answer
       });
       
-      setCompletedQA([...completedQA, mockQuestions[currentQuestionIndex]]);
+      setCompletedQA([...completedQA, questions[currentQuestionIndex]]);
     }
     
-    if (currentQuestionIndex < mockQuestions.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setAnswer(savedAnswers[`qa-${currentQuestionIndex + 1}`] || '');
     } else {
@@ -150,9 +220,9 @@ const InterviewPage = () => {
   };
   
   const handleSkipQA = () => {
-    setSkippedQuestions([...skippedQuestions, mockQuestions[currentQuestionIndex]]);
+    setSkippedQuestions([...skippedQuestions, questions[currentQuestionIndex]]);
     
-    if (currentQuestionIndex < mockQuestions.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setAnswer(savedAnswers[`qa-${currentQuestionIndex + 1}`] || '');
     } else {
@@ -176,23 +246,23 @@ const InterviewPage = () => {
         [`coding-${currentCodingIndex}`]: codingSolution
       });
       
-      setCompletedCoding([...completedCoding, mockCodingChallenges[currentCodingIndex].title]);
+      setCompletedCoding([...completedCoding, codingChallenges[currentCodingIndex].title]);
     }
     
-    if (currentCodingIndex < mockCodingChallenges.length - 1) {
+    if (currentCodingIndex < codingChallenges.length - 1) {
       setCurrentCodingIndex((prev) => prev + 1);
-      setCodingSolution(savedAnswers[`coding-${currentCodingIndex + 1}`] || mockCodingChallenges[currentCodingIndex + 1].starterCode);
+      setCodingSolution(savedAnswers[`coding-${currentCodingIndex + 1}`] || codingChallenges[currentCodingIndex + 1].starterCode);
     } else {
       setCurrentRound(InterviewRound.DEBUGGING);
     }
   };
   
   const handleSkipCoding = () => {
-    setSkippedQuestions([...skippedQuestions, mockCodingChallenges[currentCodingIndex].title]);
+    setSkippedQuestions([...skippedQuestions, codingChallenges[currentCodingIndex].title]);
     
-    if (currentCodingIndex < mockCodingChallenges.length - 1) {
+    if (currentCodingIndex < codingChallenges.length - 1) {
       setCurrentCodingIndex((prev) => prev + 1);
-      setCodingSolution(savedAnswers[`coding-${currentCodingIndex + 1}`] || mockCodingChallenges[currentCodingIndex + 1].starterCode);
+      setCodingSolution(savedAnswers[`coding-${currentCodingIndex + 1}`] || codingChallenges[currentCodingIndex + 1].starterCode);
     } else {
       setCurrentRound(InterviewRound.DEBUGGING);
     }
@@ -214,23 +284,23 @@ const InterviewPage = () => {
         [`debugging-${currentDebuggingIndex}`]: debuggingSolution
       });
       
-      setCompletedDebugging([...completedDebugging, mockDebuggingChallenges[currentDebuggingIndex].title]);
+      setCompletedDebugging([...completedDebugging, debuggingChallenges[currentDebuggingIndex].title]);
     }
     
-    if (currentDebuggingIndex < mockDebuggingChallenges.length - 1) {
+    if (currentDebuggingIndex < debuggingChallenges.length - 1) {
       setCurrentDebuggingIndex((prev) => prev + 1);
-      setDebuggingSolution(savedAnswers[`debugging-${currentDebuggingIndex + 1}`] || mockDebuggingChallenges[currentDebuggingIndex + 1].buggyCode);
+      setDebuggingSolution(savedAnswers[`debugging-${currentDebuggingIndex + 1}`] || debuggingChallenges[currentDebuggingIndex + 1].buggyCode);
     } else {
       setCurrentRound(InterviewRound.COMPLETE);
     }
   };
   
   const handleSkipDebugging = () => {
-    setSkippedQuestions([...skippedQuestions, mockDebuggingChallenges[currentDebuggingIndex].title]);
+    setSkippedQuestions([...skippedQuestions, debuggingChallenges[currentDebuggingIndex].title]);
     
-    if (currentDebuggingIndex < mockDebuggingChallenges.length - 1) {
+    if (currentDebuggingIndex < debuggingChallenges.length - 1) {
       setCurrentDebuggingIndex((prev) => prev + 1);
-      setDebuggingSolution(savedAnswers[`debugging-${currentDebuggingIndex + 1}`] || mockDebuggingChallenges[currentDebuggingIndex + 1].buggyCode);
+      setDebuggingSolution(savedAnswers[`debugging-${currentDebuggingIndex + 1}`] || debuggingChallenges[currentDebuggingIndex + 1].buggyCode);
     } else {
       setCurrentRound(InterviewRound.COMPLETE);
     }
@@ -251,13 +321,13 @@ const InterviewPage = () => {
   
   React.useEffect(() => {
     if (currentRound === InterviewRound.CODING && !codingSolution) {
-      setCodingSolution(savedAnswers[`coding-${currentCodingIndex}`] || mockCodingChallenges[currentCodingIndex].starterCode);
+      setCodingSolution(savedAnswers[`coding-${currentCodingIndex}`] || codingChallenges[currentCodingIndex].starterCode);
     }
     
     if (currentRound === InterviewRound.DEBUGGING && !debuggingSolution) {
-      setDebuggingSolution(savedAnswers[`debugging-${currentDebuggingIndex}`] || mockDebuggingChallenges[currentDebuggingIndex].buggyCode);
+      setDebuggingSolution(savedAnswers[`debugging-${currentDebuggingIndex}`] || debuggingChallenges[currentDebuggingIndex].buggyCode);
     }
-  }, [currentRound, currentCodingIndex, currentDebuggingIndex]);
+  }, [currentRound, currentCodingIndex, currentDebuggingIndex, savedAnswers, codingChallenges, debuggingChallenges]);
   
   const renderProgress = () => {
     let current = 0;
@@ -266,18 +336,18 @@ const InterviewPage = () => {
     switch (currentRound) {
       case InterviewRound.QA:
         current = completedQA.length;
-        total = mockQuestions.length;
+        total = questions.length;
         break;
       case InterviewRound.CODING:
         current = completedQA.length + completedCoding.length;
-        total = mockQuestions.length + mockCodingChallenges.length;
+        total = questions.length + codingChallenges.length;
         break;
       case InterviewRound.DEBUGGING:
         current = completedQA.length + completedCoding.length + completedDebugging.length;
-        total = mockQuestions.length + mockCodingChallenges.length + mockDebuggingChallenges.length;
+        total = questions.length + codingChallenges.length + debuggingChallenges.length;
         break;
       case InterviewRound.COMPLETE:
-        current = mockQuestions.length + mockCodingChallenges.length + mockDebuggingChallenges.length;
+        current = questions.length + codingChallenges.length + debuggingChallenges.length;
         total = current;
         break;
     }
@@ -295,13 +365,22 @@ const InterviewPage = () => {
   };
   
   const renderQARound = () => {
+    if (isLoadingQuestions) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-lg font-medium">Loading your personalized interview questions...</p>
+        </div>
+      );
+    }
+    
     return (
       <>
         <div className="mb-6">
           <div className="flex items-center mb-4">
             <h1 className="text-2xl font-bold flex-1">Q&A Round</h1>
             <div className="text-sm text-muted-foreground">
-              Question {currentQuestionIndex + 1} of {mockQuestions.length}
+              Question {currentQuestionIndex + 1} of {questions.length}
             </div>
           </div>
           
@@ -311,7 +390,7 @@ const InterviewPage = () => {
         <Card className="mb-6 bg-dark-card border-border/40">
           <CardHeader>
             <CardTitle className="text-xl font-medium">
-              {mockQuestions[currentQuestionIndex]}
+              {questions[currentQuestionIndex]}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -370,7 +449,7 @@ const InterviewPage = () => {
               onClick={handleNextQA}
               disabled={!answer.trim()}
             >
-              {currentQuestionIndex < mockQuestions.length - 1 ? 'Next Question' : 'Next Round'}
+              {currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Next Round'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardFooter>
@@ -380,7 +459,16 @@ const InterviewPage = () => {
   };
   
   const renderCodingRound = () => {
-    const challenge = mockCodingChallenges[currentCodingIndex];
+    if (isLoadingQuestions) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-lg font-medium">Loading your coding challenges...</p>
+        </div>
+      );
+    }
+    
+    const challenge = codingChallenges[currentCodingIndex];
     
     return (
       <>
@@ -388,7 +476,7 @@ const InterviewPage = () => {
           <div className="flex items-center mb-4">
             <h1 className="text-2xl font-bold flex-1">Coding Challenge</h1>
             <div className="text-sm text-muted-foreground">
-              Challenge {currentCodingIndex + 1} of {mockCodingChallenges.length}
+              Challenge {currentCodingIndex + 1} of {codingChallenges.length}
             </div>
           </div>
           
@@ -500,7 +588,7 @@ const InterviewPage = () => {
                     const dialogCloseEvent = new CustomEvent('dialog.close');
                     document.dispatchEvent(dialogCloseEvent);
                   }}>
-                    Submit & {currentCodingIndex < mockCodingChallenges.length - 1 ? 'Continue' : 'Next Round'}
+                    Submit & {currentCodingIndex < codingChallenges.length - 1 ? 'Continue' : 'Next Round'}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -512,7 +600,16 @@ const InterviewPage = () => {
   };
   
   const renderDebuggingRound = () => {
-    const challenge = mockDebuggingChallenges[currentDebuggingIndex];
+    if (isLoadingQuestions) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-lg font-medium">Loading your debugging challenges...</p>
+        </div>
+      );
+    }
+    
+    const challenge = debuggingChallenges[currentDebuggingIndex];
     
     return (
       <>
@@ -520,7 +617,7 @@ const InterviewPage = () => {
           <div className="flex items-center mb-4">
             <h1 className="text-2xl font-bold flex-1">Debugging Challenge</h1>
             <div className="text-sm text-muted-foreground">
-              Debug {currentDebuggingIndex + 1} of {mockDebuggingChallenges.length}
+              Debug {currentDebuggingIndex + 1} of {debuggingChallenges.length}
             </div>
           </div>
           
@@ -581,7 +678,7 @@ const InterviewPage = () => {
               onClick={handleNextDebugging}
               disabled={!debuggingSolution.trim()}
             >
-              {currentDebuggingIndex < mockDebuggingChallenges.length - 1 ? 'Next Debug' : 'Complete Interview'}
+              {currentDebuggingIndex < debuggingChallenges.length - 1 ? 'Next Debug' : 'Complete Interview'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardFooter>
@@ -592,7 +689,7 @@ const InterviewPage = () => {
   
   const renderInterviewComplete = () => {
     const totalAnswered = completedQA.length + completedCoding.length + completedDebugging.length;
-    const totalQuestions = mockQuestions.length + mockCodingChallenges.length + mockDebuggingChallenges.length;
+    const totalQuestions = questions.length + codingChallenges.length + debuggingChallenges.length;
     const score = Math.round((totalAnswered / totalQuestions) * 100);
     
     return (
@@ -611,7 +708,7 @@ const InterviewPage = () => {
               <CardTitle className="text-center text-lg">Q&A Round</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-3xl font-bold text-blue-500">{completedQA.length}/{mockQuestions.length}</p>
+              <p className="text-3xl font-bold text-blue-500">{completedQA.length}/{questions.length}</p>
               <p className="text-sm text-muted-foreground">Questions Answered</p>
             </CardContent>
           </Card>
@@ -621,7 +718,7 @@ const InterviewPage = () => {
               <CardTitle className="text-center text-lg">Coding Round</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-3xl font-bold text-amber-500">{completedCoding.length}/{mockCodingChallenges.length}</p>
+              <p className="text-3xl font-bold text-amber-500">{completedCoding.length}/{codingChallenges.length}</p>
               <p className="text-sm text-muted-foreground">Challenges Completed</p>
             </CardContent>
           </Card>
@@ -631,7 +728,7 @@ const InterviewPage = () => {
               <CardTitle className="text-center text-lg">Debugging Round</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-3xl font-bold text-green-500">{completedDebugging.length}/{mockDebuggingChallenges.length}</p>
+              <p className="text-3xl font-bold text-green-500">{completedDebugging.length}/{debuggingChallenges.length}</p>
               <p className="text-sm text-muted-foreground">Bugs Fixed</p>
             </CardContent>
           </Card>
@@ -723,7 +820,7 @@ const InterviewPage = () => {
             </TabsList>
             
             <TabsContent value="interview" className="mt-0">
-              {currentRound !== InterviewRound.COMPLETE && (
+              {currentRound !== InterviewRound.COMPLETE && !isLoadingQuestions && (
                 <div className="flex justify-end mb-4">
                   <Button
                     variant="outline"
