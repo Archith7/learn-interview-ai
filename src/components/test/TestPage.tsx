@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -9,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { FileUp, ChevronLeft, Info } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InterviewTips from '@/components/test/InterviewTips';
+import { useToast } from '@/hooks/use-toast';
 
 enum InterviewSetupStep {
   OPTIONS,
@@ -18,10 +18,12 @@ enum InterviewSetupStep {
 
 const TestPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<InterviewSetupStep>(InterviewSetupStep.OPTIONS);
   const [file, setFile] = useState<File | null>(null);
   const [jobRole, setJobRole] = useState('');
   const [primaryTechnology, setPrimaryTechnology] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   
   const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -29,10 +31,62 @@ const TestPage = () => {
     }
   };
   
+  const handleSendResumeToBackend = async () => {
+    if (!file) return;
+    
+    setIsUploading(true);
+    
+    // Create FormData to send the file
+    const formData = new FormData();
+    formData.append('resume', file);
+    formData.append('jobRole', jobRole);
+    
+    try {
+      // Replace with your actual API endpoint
+      const response = await fetch('https://your-backend-api.com/resume-upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload resume');
+      }
+      
+      const data = await response.json();
+      
+      toast({
+        title: "Resume uploaded successfully",
+        description: "Your resume has been processed for the interview.",
+      });
+      
+      // Navigate to interview page
+      navigate('/test/interview', { 
+        state: { 
+          resumeId: data.resumeId,
+          jobRole: jobRole
+        } 
+      });
+      
+    } catch (error) {
+      console.error('Error uploading resume:', error);
+      toast({
+        title: "Upload failed",
+        description: "There was a problem uploading your resume. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
   const handleStartInterview = () => {
-    // In a real app, we would process the resume and selections here
-    // For now, just navigate to a mock results page
-    navigate('/test/interview');
+    if (currentStep === InterviewSetupStep.RESUME_UPLOAD && file) {
+      // If we have a resume, send it to the backend first
+      handleSendResumeToBackend();
+    } else {
+      // For other cases (like topic selection), just navigate
+      navigate('/test/interview');
+    }
   };
   
   const handleBackToOptions = () => {
@@ -139,9 +193,15 @@ const TestPage = () => {
                   <CardFooter className="flex justify-end">
                     <Button 
                       onClick={handleStartInterview} 
-                      disabled={!file || !jobRole.trim()}
+                      disabled={!file || !jobRole.trim() || isUploading}
+                      className="relative"
                     >
-                      Start Interview
+                      {isUploading ? 'Uploading...' : 'Start Interview'}
+                      {isUploading && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-5 h-5 border-2 border-t-transparent border-primary rounded-full animate-spin"></div>
+                        </div>
+                      )}
                     </Button>
                   </CardFooter>
                 </Card>
