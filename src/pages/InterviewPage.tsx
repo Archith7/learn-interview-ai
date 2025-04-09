@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, XCircle, Mic, MicOff, Send, Info, BookOpen, Users, Code, Clock, SkipForward, Save, ArrowRight } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, Mic, MicOff, Send, Info, BookOpen, Users, Code, Clock, SkipForward, Save, ArrowRight, Maximize } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import FullScreenInterview from '@/components/test/FullScreenInterview';
 
 const mockQuestions = [
   "Explain the concept of closures in JavaScript and provide an example.",
@@ -127,6 +128,8 @@ const InterviewPage = () => {
   const [completedQA, setCompletedQA] = useState<string[]>([]);
   const [completedCoding, setCompletedCoding] = useState<string[]>([]);
   const [completedDebugging, setCompletedDebugging] = useState<string[]>([]);
+  
+  const [isFullScreen, setIsFullScreen] = useState(false);
   
   const handleNextQA = () => {
     if (answer.trim()) {
@@ -662,6 +665,53 @@ const InterviewPage = () => {
     );
   };
   
+  const toggleFullScreen = () => {
+    setIsFullScreen(!isFullScreen);
+  };
+  
+  if (isFullScreen && currentRound !== InterviewRound.COMPLETE) {
+    return (
+      <FullScreenInterview 
+        currentRound={currentRound}
+        currentQuestionIndex={currentQuestionIndex}
+        currentCodingIndex={currentCodingIndex}
+        currentDebuggingIndex={currentDebuggingIndex}
+        mockQuestions={mockQuestions}
+        mockCodingChallenges={mockCodingChallenges}
+        mockDebuggingChallenges={mockDebuggingChallenges}
+        answer={answer}
+        setAnswer={setAnswer}
+        codingSolution={codingSolution}
+        setCodingSolution={setCodingSolution}
+        debuggingSolution={debuggingSolution}
+        setDebuggingSolution={setDebuggingSolution}
+        isRecording={isRecording}
+        toggleRecording={toggleRecording}
+        savedAnswers={savedAnswers}
+        setSavedAnswers={setSavedAnswers}
+        skippedQuestions={skippedQuestions}
+        setSkippedQuestions={setSkippedQuestions}
+        completedQA={completedQA}
+        setCompletedQA={setCompletedQA}
+        completedCoding={completedCoding}
+        setCompletedCoding={setCompletedCoding}
+        completedDebugging={completedDebugging}
+        setCompletedDebugging={setCompletedDebugging}
+        handleNextQA={handleNextQA}
+        handleSkipQA={handleSkipQA}
+        handleSaveQA={handleSaveQA}
+        handleNextCoding={handleNextCoding}
+        handleSkipCoding={handleSkipCoding}
+        handleSaveCoding={handleSaveCoding}
+        handleNextDebugging={handleNextDebugging}
+        handleSkipDebugging={handleSkipDebugging}
+        handleSaveDebugging={handleSaveDebugging}
+        renderProgress={renderProgress}
+        onExitFullScreen={toggleFullScreen}
+      />
+    );
+  }
+  
   return (
     <Layout>
       <div className="container py-8 md:py-12">
@@ -673,6 +723,20 @@ const InterviewPage = () => {
             </TabsList>
             
             <TabsContent value="interview" className="mt-0">
+              {currentRound !== InterviewRound.COMPLETE && (
+                <div className="flex justify-end mb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleFullScreen}
+                    className="flex items-center gap-1"
+                  >
+                    <Maximize className="h-4 w-4" />
+                    <span>Full Screen</span>
+                  </Button>
+                </div>
+              )}
+              
               {currentRound === InterviewRound.QA && renderQARound()}
               {currentRound === InterviewRound.CODING && renderCodingRound()}
               {currentRound === InterviewRound.DEBUGGING && renderDebuggingRound()}
